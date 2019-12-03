@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void read_file() {
+
+int calc_fuel_rqrt(int mass) {
+    return (mass/3)-2;
+}
+
+int calc_total_fuel() {
     FILE *fptr;
     char filename[14] = "data/day1.txt";
     char buffer[100];
-    int pos = 0;
-    char ch;
     int total = 0;
 
     fptr = fopen(filename, "r");
@@ -15,24 +18,20 @@ void read_file() {
         exit(0);
     }
 
-    while(ch != EOF){
-        ch = fgetc(fptr);
-        file_contents[pos] = ch;
-        pos++;
+    /*struggled with some of the input. reading the file via fgetc() is MUCH? more difficult than using fgets */
+    while(fgets(buffer, 100, fptr) != NULL){
+        int value = atoi(buffer);
+        int fuel_rqrd = calc_fuel_rqrt(value);
+        total+=fuel_rqrd;
     }
-
-    int i;
-    for(i=0; i<=pos; i++) {
-        printf("%c", file_contents[i]);
-    }
-
     fclose(fptr);
+    return total;
+
 }
 
-void print_buffer(char *buff)
-
 int main(void) {
-    read_file();
+    int total = calc_total_fuel();
+    printf("total fuel required for part 1 is: %i\n", total);
     return 0;
 }
 
