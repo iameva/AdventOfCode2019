@@ -80,4 +80,15 @@ defmodule Day3 do
     intersections = MapSet.intersection(wire1_points, wire2_points)
     Enum.min_by(intersections, &Point.dist/1)
   end
+
+  def find_steps_to_soonest_intersection(wire1, wire2) do
+    p1 = Wire.points(wire1)
+    p2 = Wire.points(wire2)
+    m1 = Map.new(Stream.with_index(p1, 1))
+    m2 = Map.new(Stream.with_index(p2, 1))
+    intersection_points = MapSet.intersection(MapSet.new(p1), MapSet.new(p2))
+    
+    point = Enum.min_by(intersection_points, fn p -> m1[p] + m2[p] end)
+    m1[point] + m2[point]
+  end
 end
