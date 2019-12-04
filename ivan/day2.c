@@ -33,12 +33,12 @@ int fill_int_array(char *arr, int *result) {
     return k;
 }
 
-void replace_start_state(int *state) {
-    state[1] = 12;
-    state[2] = 2;
+void replace_start_state(int *state, int noun, int verb) {
+    state[1] = noun;
+    state[2] = verb;
 }
 
-void perform_algorithmz(int *data, int len) {
+void perform_pt1_algorithmz(int *data, int len) {
     int opcode_offset = 4;
     int i;
 
@@ -65,6 +65,14 @@ void perform_algorithmz(int *data, int len) {
     return;
 }
 
+void copy_int_array(int *to_full, int *src, int len) {
+    int i = 0;
+    while(i<=len){
+      to_full[i] = src[i];
+      i++;
+    }
+}
+
 int main(void) {
     FILE *fptr = read_input();
     char buffer[1000];
@@ -74,11 +82,29 @@ int main(void) {
     while(fgets(buffer, 1000, fptr) != NULL){
         len = fill_int_array(buffer, parsed_int_buffer);
     }
-    replace_start_state(parsed_int_buffer);
 
+    int ints[1000];
+    copy_int_array(ints, parsed_int_buffer, 1000);
+
+    replace_start_state(ints, 12, 2);
     //now we have the starting int array, perform ze algorithmz
-    perform_algorithmz(parsed_int_buffer, len);
-     printf("our final result is: %i\n", parsed_int_buffer[0]);
+    perform_pt1_algorithmz(ints, len);
+    printf("our final result for part 1 is: %i\n", ints[0]);
+
+    int i;
+    int j;
+    for(i=0; i<=99; i++){
+        for(j=0; j<=99; j++){
+            copy_int_array(ints, parsed_int_buffer, 1000);
+            replace_start_state(ints, i, j);
+            perform_pt1_algorithmz(ints, len);
+            if(ints[0] == 19690720){
+                printf("result found! noun is %i and verb is %i\n", i, j);
+                printf("answer for part2 is: %i\n", (100*i)+j);
+            }
+        }
+    }
+
     fclose(fptr);
     return 0;
 }
