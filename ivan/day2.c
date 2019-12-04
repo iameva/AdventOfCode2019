@@ -7,12 +7,11 @@ FILE* read_input() {
     return fopen(filename, "r");
 }
 
-int * to_int_array(char *arr) {
+void fill_int_array(char *arr, int *result) {
     int i = 0;
     int j = 0;
     int k = 0;
     char buf[20];
-    int result[1000];
     while(arr[i]!=NULL){
         if(isdigit(arr[i])){
             buf[j] = (int)arr[i];
@@ -31,7 +30,6 @@ int * to_int_array(char *arr) {
         }
         i++;
     }
-    return &result;
 }
 
 int main(void) {
@@ -39,9 +37,10 @@ int main(void) {
     char buffer[1000];
 
     while(fgets(buffer, 1000, fptr) != NULL){
-        int * results = to_int_array(buffer);
+        int result_buffer[1000];
+        fill_int_array(buffer, result_buffer);
         int i = 0;
-        printf("%i", *results);
+        printf("%s", result_buffer);
 //        while(results[i]!=NULL) {
 //            printf("%i", results[i]);
 //        }
