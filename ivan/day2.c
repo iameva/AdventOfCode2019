@@ -93,15 +93,20 @@ int main(void) {
 
     int i;
     int j;
+    int MOON_LANDING = 19690720;
     for(i=0; i<=99; i++){
         for(j=0; j<=99; j++){
             copy_int_array(ints, parsed_int_buffer, 1000);
             replace_start_state(ints, i, j);
             perform_pt1_algorithmz(ints, len);
-            if(ints[0] == 19690720){
+            if(ints[0] == MOON_LANDING){
                 printf("result found! noun is %i and verb is %i\n", i, j);
                 printf("answer for part2 is: %i\n", (100*i)+j);
+                break;
             }
+        }
+        if(ints[0] == MOON_LANDING) {
+            break;
         }
     }
 
