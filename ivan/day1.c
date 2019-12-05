@@ -23,7 +23,7 @@ int calc_total_fuel(FILE *fptr) {
     return total;
 }
 
-int calc_fuel_recursive(FILE *fptr) {
+int calc_fuel_iterative(FILE *fptr) {
     char buffer[100];
     int total = 0;
 
@@ -54,7 +54,7 @@ int main(void) {
     int fuel_non_recurs = calc_total_fuel(fptr);
     fseek(fptr, 0, 0);
 
-    int fuel_recurs = calc_fuel_recursive(fptr);
+    int fuel_recurs = calc_fuel_iterative(fptr);
     fclose(fptr);
 
     printf("total fuel required for part 1 is: %i\n", fuel_non_recurs);

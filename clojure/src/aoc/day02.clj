@@ -21,3 +21,8 @@
               ((ops (chunk 0)) (tape (chunk 1)) (tape (chunk 2)))) (+ position 4))
       )))
 
+
+(defn set-state [tape noun verb]
+  (assoc tape 1 noun 2 verb))
+
+(for [noun (range 100) verb (range 100) :when(= 19690720 (first (process-chunk (set-state input noun verb) 0)))] [noun, verb])
