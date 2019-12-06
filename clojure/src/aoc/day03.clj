@@ -86,3 +86,13 @@
      (map (partial util/manhattan-2d {:x 0 :y 0}))
      (sort)
      (first))
+
+
+;;;; part two
+;; seg looks like [{:x ? :y ?} {:x? :y ?}]
+(defn generate-points-from-segment [segment]
+  (for [x (range (:x (segment 0)) (:x (segment 1)) (if (< (:x (segment 0)) (:x (segment 1))) 1 -1))
+        y (range (:y (segment 0)) (:y (segment 1)) (if (< (:y (segment 0)) (:y (segment 1))) 1 -1))]
+    {:x x :y y}))
+
+
