@@ -118,7 +118,7 @@ defmodule Day5 do
 
   def process(state, ops) do
     baseOp = state |> current()
-    op = baseOp |> rem(99)
+    op = baseOp |> rem(100)
     case ops[op] do
       nil -> state
       code ->
