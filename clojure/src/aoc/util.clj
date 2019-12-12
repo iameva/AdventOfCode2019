@@ -14,3 +14,9 @@
 
 (defn char-to-int [character]
   (- (int character) (int \0)))
+
+(defn read-lines [filename]
+  (->> filename io/resource io/reader line-seq))
+
+(defn make-point [x y]
+  {:x x :y y})
