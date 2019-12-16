@@ -8,21 +8,22 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            // "skipFiles": [
-            //     "<node_internals>/**",
-            // ],
-            // "program": "${file}",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules",
+                "./**/*.json",
+            ],
             "program": "${file}",
-            "preLaunchTask": "tsc: build - tsconfig.json",
+            "preLaunchTask": "npm: build",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch File",
-            "program": "${file}"
         }
+        // {
+        //     "type": "node",
+        //     "request": "launch",
+        //     "name": "Launch File",
+        //     "program": "${file}"
+        // }
     ]
 }

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "npx tsc -w"
+    "watch": "npx tsc -w",
+    "build": "npx tsc --build tsconfig.json"
   },
   "author": "",
   "license": "ISC",
