@@ -1,6 +1,6 @@
 (ns aoc.int-code)
 
-(def instructions
+(def instruction-template
   { ;; opcode adden adder dest
    1 {:func     + 
       :size     4
@@ -17,20 +17,20 @@
        :adv-args []
        :adv-func (partial + 4)
        :name     "multi"}
-   ;; opcode src
-   4  {:func     println
-       :size     2
-       :args     [0]
-       :adv-args []
-       :adv-func (partial + 2)
-       :name     "output"}
    ;; opcode dest
-   3  {:func     (fn[](Integer/parseInt (read-line)))
+   3  {:name     "input"
+       :func     (fn[]())
        :size     2
        :dest     0
        :adv-args []
-       :adv-func (partial + 2)
-       :name     "input"}
+       :adv-func (partial + 2)}
+   ;; opcode src
+   4  {:name     "output"
+       :func     (fn[]())
+       :size     2
+       :args     [0]
+       :adv-args []
+       :adv-func (partial + 2)}
    ;;jump-if-true
    5  {:func     (fn [] ())
        :size     3
@@ -64,11 +64,17 @@
    99 "stop"
    })
 
+
+(defn make-instructions [input output]
+  (assoc instruction-template
+         3 (assoc (instruction-template 3) :func input)
+         4 (assoc (instruction-template 4) :func output)))
+
 (def is-pos? (partial = 0))
 (def is-immediate? (partial = 1))
 
 ;; Mod the opcode by 100, and the instruction from the instructions map
-(defn decode-instruction [memory prgm-counter]
+(defn decode-instruction [memory prgm-counter instructions]
   (instructions (mod (memory prgm-counter) 100)))
 
 ;; returns the mode from the opcode as an array. [1st 2nd 3rd]
@@ -94,7 +100,7 @@
   (into [] (map (partial evaluate-param memory) (map vector modes args))))
 
 ;; Execute instruction function against resolved parameters
-#dbg(defn execute-instruction [memory instr args modes]
+(defn execute-instruction [memory instr args modes]
   (let [params (evaluate-params memory args modes)]
     (if (contains? instr :dest)
       (assoc memory (args (instr :dest))
@@ -103,20 +109,25 @@
         (apply (instr :func) (map params (instr :args))) ;; output 
         memory))))
 ;;
-#dbg(defn advance-pointer [memory instr args modes pgrm-counter]
+(defn advance-pointer [memory instr args modes pgrm-counter]
   (let [params (evaluate-params memory args modes)]
     (apply (instr :adv-func) (concat [pgrm-counter] (map params (instr :adv-args))))))
   
 
-(defn run [memory prgm-counter]
+(defn run [memory prgm-counter instructions]
   (loop [memory memory
          prgm-counter prgm-counter]
-    (if  (= "stop" (decode-instruction memory prgm-counter))
+    (if  (= "stop" (decode-instruction memory prgm-counter instructions))
       memory
-      (let [instr (decode-instruction memory prgm-counter)
+      (let [instr (decode-instruction memory prgm-counter instructions)
             args  (decode-args memory prgm-counter (instr :size))
             modes (decode-modes memory prgm-counter)]
         (do
          (recur (execute-instruction memory instr args modes)
                (advance-pointer memory instr args modes prgm-counter)))))))
 
+(defn make-int-computer [input-func output-func]
+  (fn [memory]
+    (do
+      (run memory 0 (make-instructions input-func output-func))
+      "done")))

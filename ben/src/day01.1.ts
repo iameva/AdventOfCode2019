@@ -1,3 +1,5 @@
+export {}
+
 const fs = require('fs').promises
 const path = require('path')
 const data_path = path.resolve(__dirname, 'data', 'day01.1.txt')

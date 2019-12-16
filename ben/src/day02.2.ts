@@ -28,7 +28,6 @@ let intcode_methods = {
 }
 
 function run_intcode(index, intcode) {
-    console.log(index, intcode)
     const method = intcode_methods[intcode[index]]
     if(method == undefined) {
         throw `Unknown intcode method ${intcode[index]}, at index ${index}`
@@ -49,7 +48,7 @@ function run_intcode(index, intcode) {
     return run_intcode(index + 4, intcode)
 }
 
-async function run() {
+async function run(noun, verb) {
     let data = await fs.readFile(data_path, "binary")
     data = data
         .toString()
@@ -58,11 +57,26 @@ async function run() {
             return Number(val)
         })
 
-    data[1] = 12
-    data[2] = 2
-   
-    console.log(run_intcode(0, data))
+    data[1] = noun
+    data[2] = verb
+    return run_intcode(0, data)
+
 }
 
+async function multi_run() {
+    let noun, verb, result;
+    for(noun = 0; noun <= 99; noun++) {
+        for(verb = 0; verb <= 99; verb++) {
+            result = await run(noun, verb)
+            console.log(noun, verb, result)
+            if(result == 19690720) {
+                console.log('Final answer:')
+                console.log(noun, verb)
+                console.log(100 * noun + verb)
+                return result
+            }
+        }
+    }
+}
 
-run()
+multi_run()
