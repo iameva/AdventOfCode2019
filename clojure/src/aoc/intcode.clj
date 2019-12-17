@@ -1,4 +1,7 @@
-(ns aoc.int-code)
+(ns aoc.int-code
+  (:require
+   [clojure.java.io :as io]
+   [clojure.string :as str]))
 
 (def instruction-template
   { ;; opcode adden adder dest
@@ -64,6 +67,11 @@
    99 "stop"
    })
 
+(defn read-program [filename]
+  (->>
+   (-> filename io/resource slurp str/trim (str/split #","))
+   (map #(Integer/parseInt %))
+   (into [])))
 
 (defn make-instructions [input output]
   (assoc instruction-template
@@ -129,5 +137,4 @@
 (defn make-int-computer [input-func output-func]
   (fn [memory]
     (do
-      (run memory 0 (make-instructions input-func output-func))
-      "done")))
+      (run memory 0 (make-instructions input-func output-func)))))
