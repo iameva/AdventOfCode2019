@@ -30,12 +30,11 @@
 (defn create-async-amplifier [io]
   (let [in-ch (first io)
         out-ch (first (next io))
-        intcode (ic/make-int-computer
-                 (partial <!! in-ch)
-                 (partial >!! out-ch))]
+        intcode (ic/make-int-computer in-ch out-ch)]
     (fn [memory]
       (go 
         (intcode memory)
+        (println "finished")
         out-ch))))
 
 ;; 
@@ -51,7 +50,7 @@
      ;; => [(C1 C2) (C2 C3) ... (C4 C5) (C5 C1)]
      (concat (partition 2 1 cs) [(seq [(last cs) (first cs)])]))))
 
-(defn amp-output-async [program power-seq]
+#dbg(defn amp-output-async [program power-seq]
   (->> power-seq
        create-channels
        create-amp-ring

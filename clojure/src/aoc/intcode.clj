@@ -13,13 +13,18 @@
       1  arg           ;; IMMEDIATE
       2  (memory (+ arg (state :rel-offset))))))
 
+(defn eval-write-to-arg [state arg]
+  (if (= (:mode arg) 0)
+    (:arg arg)
+    (+ (:arg arg ) (state :rel-offset))))
+
 (def instruction-template
   { ;; opcode adden adder dest
    1 {:name  "add"
       :func  (fn [state args]
                (-> state
                    (update :ram (fn [ram args]
-                                  (assoc ram (:arg (args 2))
+                                  (assoc ram (eval-write-to-arg state (args 2))
                                          (apply + (map (partial evaluate-arg state) (map args [0 1])))))
                            args)
                    (update :pgm-ctr + 4)))
@@ -28,7 +33,7 @@
       :func  (fn [state args]
                (-> state
                    (update :ram (fn [ram args]
-                                  (assoc ram (:arg (args 2))
+                                  (assoc ram (eval-write-to-arg state (args 2))
                                          (apply * (map (partial evaluate-arg state) (map args [0 1])))))
                            args)
                    (update :pgm-ctr + 4)))
@@ -37,7 +42,7 @@
       :func  (fn [state args]
                (-> state
                    (update :ram (fn [ram args]
-                                  (assoc ram (:arg (args 0)) (<!! (:in state))))
+                                  (assoc ram (eval-write-to-arg state (args 0)) (<!! (:in state))))
                            args)
                    (update :pgm-ctr + 2)))
       :size  2}
@@ -53,7 +58,7 @@
                    (update :pgm-ctr (fn[ctr args]
                                       (let [a (evaluate-arg state (first args))
                                             b (evaluate-arg state (last args))]
-                                        (if (not= 0 a) b (+ ctr 3))) args)
+                                        (if (not= 0 a) b (+ ctr 3))))
                            args)))
       :size  3}
    6 {:name  "jump-if-false"
@@ -71,7 +76,7 @@
                (-> state
                    (update :ram
                            (fn[ram args]
-                             (assoc ram (:arg (args 2))
+                             (assoc ram (eval-write-to-arg state (args 2))
                                     (if (< (evaluate-arg state (args 0)) (evaluate-arg state (args 1))) 1 0)))
                            args)
                    (update :pgm-ctr + 4)))
@@ -81,7 +86,7 @@
                (-> state
                    (update :ram
                            (fn[ram args]
-                             (assoc ram (:arg (args 2))
+                             (assoc ram (eval-write-to-arg state (args 2))
                                     (if (= (evaluate-arg state (args 0)) (evaluate-arg state (args 1))) 1 0)))
                            args)
                    (update :pgm-ctr + 4)))
@@ -100,7 +105,7 @@
 (defn read-program [filename]
   (->>
    (-> filename io/resource slurp str/trim (str/split #","))
-   (map #(Integer/parseInt %))
+   (map #(Long/parseLong %))
    (into [])))
 
 (def POSITION 0)
@@ -122,14 +127,14 @@
 (defn decode-args [state instr]
   (let [args (subvec (:ram state) (inc (:pgm-ctr state)) (+ (:pgm-ctr state) (:size instr)))
         modes (decode-modes state)]
-    (into [] (map (fn[pair] {:mode (pair 0) :arg (pair 1)}) (map vector modes args))))) ;; RELATIVE
+    (into [] (map (fn[pair] {:mode (pair 0) :arg (pair 1)}) (map vector modes args)))))
 
 (defn run [state instructions]
   (loop [state state]
     (if  (= "stop" (decode-instruction state instructions))
       state
       (let [instr (decode-instruction state instructions)
-            args  (decode-args state instr)]
+                  args  (decode-args state instr)]
         (recur ((:func instr) state args))))))
 
 (defn make-int-computer [input-channel output-channel]
