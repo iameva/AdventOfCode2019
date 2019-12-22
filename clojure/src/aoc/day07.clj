@@ -29,28 +29,22 @@
 ;; that contains the output channel for the computer.
 (defn create-async-amplifier [io]
   (let [in-ch (first io)
-        out-ch (first (next io))
-        intcode (ic/make-int-computer in-ch out-ch)]
-    (fn [memory]
-      (go 
-        (intcode memory)
-        (println "finished")
-        out-ch))))
+        out-ch (first (next io))]
+    (ic/make-int-computer in-ch out-ch)))
 
 ;; 
 (defn create-amp-ring [cs]
   (do
     (>!! (first cs) 0) ;; add initial start to first input channel
     (map
-     (fn [io]
-       (create-async-amplifier io))
+     create-async-amplifier
      ;; Below creates a ring of channels
      ;; Given channes C1, C2, ..., C4, C5, it will return
      ;; pairs of adajent channels, with wrap-around.
      ;; => [(C1 C2) (C2 C3) ... (C4 C5) (C5 C1)]
      (concat (partition 2 1 cs) [(seq [(last cs) (first cs)])]))))
 
-#dbg(defn amp-output-async [program power-seq]
+(defn amp-output-async [program power-seq]
   (->> power-seq
        create-channels
        create-amp-ring
@@ -58,6 +52,7 @@
        doall
        (map <!!)
        last
+       :out
        <!!))
 
 (defn part-one [memory]

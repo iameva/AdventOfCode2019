@@ -1,6 +1,7 @@
 (ns aoc.util
   (:require
-   [clojure.java.io :as io]))
+   [clojure.java.io :as io]
+   [clojure.core.async :as async :refer [close! <!!]]))
 
 ;; Takes a map of {x -> number y-:> number}
 ;; returns manhattan distance
@@ -20,3 +21,9 @@
 
 (defn make-point [x y]
   {:x x :y y})
+
+
+(defn drain-channel [c]
+  (do
+    (close! c)
+    (take-while some? (repeatedly #(<!! c)))))

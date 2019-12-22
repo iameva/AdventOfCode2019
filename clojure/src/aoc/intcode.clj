@@ -1,4 +1,4 @@
-(ns aoc.int-code
+(ns aoc.intcode
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
@@ -137,13 +137,16 @@
                   args  (decode-args state instr)]
         (recur ((:func instr) state args))))))
 
+(defn init-state [in out program]
+  {:ram (into [] (concat program (repeat 1024 0)))
+    :pgm-ctr 0
+    :rel-offset 0
+    :in in
+    :out out})
+
 (defn make-int-computer [input-channel output-channel]
   (fn [memory]
     (go
       (run
-        {:ram (into [] (concat memory (repeat 1024 0)))
-         :pgm-ctr 0
-         :rel-offset 0
-         :in input-channel
-         :out output-channel}
+        (init-state input-channel output-channel memory)
         instruction-template))))
