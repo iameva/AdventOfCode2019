@@ -38,8 +38,9 @@ end
 
 
 handle_result = fn (state, score, f) ->
-  if(state |> Enum.count() > 0, do: print_state.(state, score))
+#  if(state |> Enum.count() > 0, do: print_state.(state, score), else: ())
 #  :timer.sleep(15)
+  IO.puts "score: #{score}"
   case get_output.() do
     :halted -> 
       state
@@ -50,6 +51,20 @@ handle_result = fn (state, score, f) ->
     x ->
       y = get_output.()
       tile = get_output.()
+      case tile do
+        4 ->
+          {{player_x, _}, _} = state |> Enum.find({{0, 0}, 1}, fn {k, v} -> v == 3 end)
+          if x < player_x do
+            send(pid, {:input, -1})
+          else
+            if x > player_x do
+              send(pid, {:input, 1})
+            else
+              send(pid, {:input, 0})
+            end
+          end
+        _ -> 
+          end
       f.(state |> Map.put({x, y}, tile), score, f)
   end
 end
@@ -72,7 +87,7 @@ get_input = fn (f) ->
   end
 end
 
-spawn_link fn() -> get_input.(get_input) end
+#spawn_link fn() -> get_input.(get_input) end
 
 
 handle_result.(%{}, 0, handle_result)
