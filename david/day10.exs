@@ -15,7 +15,7 @@ defmodule Day10 do
   end
 
   def gcd(a, b) do
-    small = if (a > b), do: a, else: b
+    small = if (a > b), do: b, else: a
     try do
       1..small
       |> Enum.filter(&( (rem(a, &1) == 0) && (rem(b, &1) == 0)))

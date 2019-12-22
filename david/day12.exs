@@ -73,4 +73,9 @@ defmodule Day12 do
   def energy(moons) do
     moons |> Stream.map(fn {_, moon} -> energy(moon) end) |> Enum.sum()
   end
+
+  def lcm(a, b) do
+    divisor = Day10.gcd(a, b)
+    div(a, divisor) * b
+  end
 end
