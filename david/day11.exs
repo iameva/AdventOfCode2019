@@ -108,7 +108,7 @@ defmodule Day11 do
           end
         end,
       4 => fn (state) ->
-          case state.outpid do
+          case state[:outpid] do
             nil ->
               receive do
                 {:set_output, pid} ->
