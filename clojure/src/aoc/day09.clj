@@ -11,7 +11,6 @@
     (do
       (>!! in 1)
       (<!! (:out (<!! (intcode (ic/read-program "day09.txt"))))))))
-      
 
 (defn part-two []
   (let [in  (chan 256)

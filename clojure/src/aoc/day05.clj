@@ -2,7 +2,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [aoc.int-code :as ic]))
+   [aoc.int-code :as ic]
+   [clojure.core.async :as async :refer [chan buffer >!! <!! go]]))
 
 
 (def input
@@ -11,14 +12,20 @@
    (map #(Integer/parseInt %))
    (into [])))
 
+(defn part-one []
+  (let [in (chan 256)
+        out (chan 256)]
+    (do
+      (>!! in 1)
+      (<!! ((ic/make-int-computer in out) (ic/read-program "day05.txt")))
+      (async/close! out)
+      (take-while some? (repeatedly #(<!! out))))))
 
-;;(ic/run [4 0 99 0] 0)
-;;(println 234)
-;;(ic/run [3 225 1 225 6 6 1100 1 238 225 104 0 1101 37 34 224 101 -71 224 224 4 224 1002 223 8 223 99 0 0 0] 0)
-;; part-1
-(ic/run input 0 (ic/make-instructions (fn[](Integer/parseInt (read-line))) println))
-
-;;(ic/run [3 9 8 9 10 9 4 9 99 -1 8] 0)
-;;(ic/run [3 9 7 9 10 9 4 9 99 -1 8] 0)
-;;(ic/run [3 3 1107 -1 8 3 4 3 99] 0)
-;;(ic/run [3 21 1008 21 8 20 1005 20 22 107 8 21 20 1006 20 31 1106 0 36 98 0 0 1002 21 125 20 4 20 1105 1 46 104 999 1105 1 46 1101 1000 1 20 4 20 1105 1 46 98 99] 0)
+(defn part-two []
+  (let [in (chan 256)
+        out (chan 256)]
+    (do
+      (>!! in 5)
+      (<!! ((ic/make-int-computer in out) (ic/read-program "day05.txt")))
+      (async/close! out)
+      (take-while some? (repeatedly #(<!! out))))))

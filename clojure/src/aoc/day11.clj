@@ -17,7 +17,7 @@
                      (inc didx)) 4))
           direction))
 
-(defn advance [cursor]
+#dbg(defn advance [cursor]
   (let [adv (directions (cursor :direction-idx))
         x (cursor :x)
         y (cursor :y)]
@@ -31,8 +31,8 @@
 (defn get-color [hull cursor]
   (get hull (dissoc cursor :direction-idx) 0))
 
-(defn paint-hull-with-robot [hull in out]
-  (go-loop [hull hull
+(defn paint-hull-with-robot [shiphull in out]
+  (go-loop [hull shiphull
             cursor {:x 0 :y 0 :direction-idx 0}]
     (>!! in (get-color hull cursor))
     (let [color (<!! out)
@@ -41,7 +41,7 @@
         hull
         (recur (paint-hull hull cursor color) (advance (turn cursor direction)))))))
 
-(defn display-hull [hull]
+#dbg(defn display-hull [hull]
   (for [x (range -40 40)
         y (range -40 40)]
     (if (= y 39) ;; end of the line
@@ -70,4 +70,13 @@
       (<!! (int-comp (ic/read-program "day11.txt")))
       (async/close! out)
       (print (apply str (display-hull (<!! paint-ch)))))))
-;;      (count (keys (<!! paint-ch))))))
+
+(defn daves []
+  (let [in  (chan 256)
+        out (chan 256)
+        int-comp (ic/make-int-computer in out)
+        paint-ch (paint-hull-with-robot {{:x 0 :y 0} 1} in out)]
+    (do
+      (<!! (int-comp (ic/read-program "day11.txt")))
+      (async/close! out)
+      (print (apply str (display-hull (<!! paint-ch)))))))
