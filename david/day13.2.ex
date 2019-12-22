@@ -1,4 +1,6 @@
-program = Day11.parse_state(File.read!("data/day13")) |> Day11.update(0, 2)
+in_program = Day11.parse_state(File.read!("data/day13"))
+
+program = in_program |> Day11.update(in_program.offset, 2)
 pid = spawn_link fn -> Day11.process(program, Day11.opcodes()) end
 send(pid, {:set_output, self()})
 
@@ -10,7 +12,7 @@ get_output = fn () ->
   end
 end
 
-print_state = fn (state) ->
+print_state = fn (state, score) ->
   startX = (state |> Map.keys() |> Stream.map(fn {x, _} -> x end) |> Enum.min()) - 1
   startY = (state |> Map.keys() |> Stream.map(fn {_, y} -> y end) |> Enum.min()) - 1
   endX = (state |> Map.keys() |> Stream.map(fn {x, _} -> x end) |> Enum.max()) + 1
@@ -30,40 +32,48 @@ print_state = fn (state) ->
     end
   end
   IO.puts("")
+  IO.puts("score #{score}")
+  IO.puts("")
 end
 
-input_pid = spawn_link fn () ->
-  get_input = fn (f) ->
-    input = IO.gets("")
-    inp = case input do
-      "h" -> -1
-      "l" -> 1
-      _ -> 0
-    end
-      IO.puts("got input #{input}")
-    send(pid, {:input, inp})
-    f.(f)
-  end
-    get_input.(get_input)
-end
 
-handle_result = fn (state, f) ->
+handle_result = fn (state, score, f) ->
+  if(state |> Enum.count() > 0, do: print_state.(state, score))
+#  :timer.sleep(15)
   case get_output.() do
     :halted -> 
       state
     -1 ->
       _dummy_y = get_output.()
       score = get_output.()
-      print_state.(state)
-      IO.puts ("score: #{score}")
-      IO.puts("")
-      f.(state, f)
+      f.(state, score, f)
     x ->
       y = get_output.()
       tile = get_output.()
-      f.(state |> Map.put({x, y}, tile), f)
+      f.(state |> Map.put({x, y}, tile), score, f)
   end
 end
 
-result = handle_result.(%{}, handle_result)
+get_input = fn (f) ->
+  input = IO.getn("", 2)
+  IO.puts("GOT INPUT: #{input}")
+  case input do
+    "h\n" -> 
+      send(pid, {:input, -1})
+      f.(f)
+    "l\n" ->
+      send(pid, {:input, 1})
+      f.(f)
+    "x\n" ->
+      ()
+    _ ->
+      send(pid, {:input, 0})
+      f.(f)
+  end
+end
+
+spawn_link fn() -> get_input.(get_input) end
+
+
+handle_result.(%{}, 0, handle_result)
 
