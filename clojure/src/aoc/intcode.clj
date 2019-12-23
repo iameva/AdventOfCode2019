@@ -134,7 +134,8 @@
     (if  (= "stop" (decode-instruction state instructions))
       state
       (let [instr (decode-instruction state instructions)
-                  args  (decode-args state instr)]
+            args  (decode-args state instr)]
+;;        (println "Instr: " (:name instr))
         (recur ((:func instr) state args))))))
 
 (defn init-state [in out program]

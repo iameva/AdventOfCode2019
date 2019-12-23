@@ -42,11 +42,11 @@
         (recur (paint-hull hull cursor color) (advance (turn cursor direction)))))))
 
 #dbg(defn display-hull [hull]
-  (for [x (range -40 40)
-        y (range -40 40)]
-    (if (= y 39) ;; end of the line
+      (for [y (range -40 40)
+            x (range -40 40)]
+    (if (= x 39) ;; end of the line
       \newline
-      (if (= (get-color hull {:x x :y y}) 1)
+      (if (= (get-color hull {:x (- x)  :y (- y)}) 1)
         \#
         \space ))))
 
@@ -77,6 +77,6 @@
         int-comp (ic/make-int-computer in out)
         paint-ch (paint-hull-with-robot {{:x 0 :y 0} 1} in out)]
     (do
-      (<!! (int-comp (ic/read-program "day11.txt")))
+      (<!! (int-comp (ic/read-program "dave_day11.txt")))
       (async/close! out)
       (print (apply str (display-hull (<!! paint-ch)))))))
