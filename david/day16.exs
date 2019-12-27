@@ -46,4 +46,25 @@ defmodule Day16 do
     |> Enum.to_list()
   end
 
+  def fft2(input, len) do
+    IO.puts "fft2 (#{inspect input})"
+    (1..len)
+    |> Stream.map(fn idx ->
+      [0, 1, 0, -1]
+      |> Stream.cycle()
+      |> Enum.reduce_while({0, [0 | input]}, fn x, {acc, rest} ->
+        if Enum.empty?(rest) do
+          {:halt, acc}
+        else
+          case x do
+            0 -> {:cont, {acc, rest |> Enum.drop(idx)}}
+            1 -> {:cont, {acc + (rest |> Stream.take(idx) |> Enum.sum()), rest |> Enum.drop(idx)}}
+            -1 -> {:cont, {acc - (rest |> Stream.take(idx) |> Enum.sum()), rest |> Enum.drop(idx)}}
+          end
+        end
+      end)
+      |> take_digit()
+    end)
+    |> Enum.to_list()
+  end
 end

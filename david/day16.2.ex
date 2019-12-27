@@ -1,4 +1,7 @@
-signal = Day16.parse_input(File.read!("data/day16"))
+base_signal = Day16.parse_input(File.read!("data/day16"))
+signal = 1..10000
+         |> Stream.flat_map(fn _ -> base_signal end)
+         |> Enum.to_list()
 
 len = signal |> Enum.count()
 
