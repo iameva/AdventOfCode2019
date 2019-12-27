@@ -67,4 +67,14 @@ defmodule Day16 do
     end)
     |> Enum.to_list()
   end
+
+  def fft_simple(input) do
+    {_, list} = input
+    |> Enum.reverse()
+    |> Enum.reduce({0, []}, fn x, {sum, list} ->
+      next = sum + x
+      {next, [take_digit(next) | list]}
+    end)
+    list
+  end
 end
