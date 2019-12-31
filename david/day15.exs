@@ -54,17 +54,18 @@ defmodule Day15 do
     |> Enum.reduce("\n", fn {x, y}, str ->
       char = if state.pos == {x, y} do
         case state.dir do
-          1 -> ("^")
-          2 -> ("v")
-          3 -> (">")
-          4 -> ("<")
+          1 -> "^"
+          2 -> "v"
+          3 -> ">"
+          4 -> "<"
         end
       else
         case state.map |> Map.get({x, y}) do
-          0 -> ("#")
-          1 -> (" ")
-          2 -> ("X")
-          _ -> (" ")
+          0 -> "#"
+          1 -> " "
+          2 -> "X"
+          nil -> " "
+          x -> x
         end
       end
         if x == minX do
@@ -122,7 +123,6 @@ defmodule Day15 do
 
   defp move_to_edge(state, pid) do
 #    print_state(state)
-    :timer.sleep(10)
     target_pos = Vec.add(state.pos, dir_to_vec(state.dir))
     case move(pid, state.dir) do
       0 ->
@@ -168,5 +168,26 @@ defmodule Day15 do
       %{},
       [[{0, 0}]]
     )
+  end
+
+  def part_two(state, recently_oxidized, steps \\ 0) do
+    :timer.sleep(10)
+    next_oxidized = recently_oxidized
+                    |> Stream.flat_map(fn {x, y} ->
+                      [{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}]
+                      |> Enum.filter(fn p ->
+                        tile = state.map |> Map.get(p)
+                        tile != 0 && tile != "O"
+                      end)
+                    end)
+    if next_oxidized |> Enum.empty?() do
+      steps
+    else
+      new_map = next_oxidized
+                |> Enum.reduce(state.map, fn x, m -> m |> Map.put(x, "O") end)
+      new_state = %{state | map: new_map}
+      print_state(new_state)
+      part_two(new_state, next_oxidized, steps + 1)
+    end
   end
 end
