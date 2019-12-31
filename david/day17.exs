@@ -26,17 +26,22 @@ defmodule Day17 do
     end)
   end
 
-  def read_state(state \\ %{}, {x, y} \\ {0, 0}) do
+  def read_state(state \\ %{}, {x, y} \\ {0, 0}, max_size \\ -1) do
 #    print_map(state)
-    receive do
-      input -> 
-        case input do
-          {:input, 35} -> read_state(state |> Map.put({x, y}, "#"), {x + 1, y})
-          {:input, 46} -> read_state(state |> Map.put({x, y}, "."), {x + 1, y})
-          {:input, 10} -> read_state(state, {0, y + 1})
-          {:input, other} -> read_state(state |> Map.put({x, y}, <<other>>), {x + 1, y})
-          _ -> state
-        end
+    if max_size == -1 || (state |> Enum.count()) < max_size do
+      receive do
+        input -> 
+          case input do
+            {:input, 35} -> read_state(state |> Map.put({x, y}, "#"), {x + 1, y})
+            {:input, 46} -> read_state(state |> Map.put({x, y}, "."), {x + 1, y})
+            {:input, 10} -> read_state(state, {0, y + 1})
+            {:input, other} -> read_state(state |> Map.put({x, y}, <<other>>), {x + 1, y})
+            _ -> state
+          end
+      end
+    else
+        print_map(state)
+        read_state(%{}, {0, 0}, max_size)
     end
   end
 
