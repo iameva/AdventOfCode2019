@@ -100,7 +100,7 @@ defmodule Day11 do
           receive do
             {:input, msg} ->
               state
-              |> update(state |> at(state.pos + 1), msg)
+              |> update(state |> out_parameter(3), msg)
               |> step_pos(2)
             {:set_output, pid} ->
               state

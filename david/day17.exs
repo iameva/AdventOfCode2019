@@ -52,17 +52,19 @@ defmodule Day17 do
       case state.input do
         [head | rest] ->
           state
-          |> Day11.update(state |> Day11.at(state.pos + 1), head)
+          |> Day11.update(state |> Day11.out_parameter(1), head)
           |> Map.put(:input, rest)
           |> Day11.step_pos(2)
         [] ->
-          state
-          |> Map.put(:state, :need_input)
+          input = IO.gets(to_string(state.output))
+          state |> Map.put(:input, to_charlist(input))
+          |> Map.put(:output, [])
       end
     end,
     4 => fn (state) ->
       output = state |> Day11.get_parameter(1)
-      state |> Map.put(:output, state.output ++ [output])
+      IO.write(<<output>>)
+      state #|> Map.put(:output, state.output ++ [output])
       |> Day11.step_pos(2)
     end,
     99 => fn (state) ->
@@ -100,6 +102,7 @@ defmodule Day17 do
         slow_input(next, rest)
       other ->
         IO.puts "state in #{other}, stopping"
+        IO.puts to_string(state.output)
         next
     end
   end
