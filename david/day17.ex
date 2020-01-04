@@ -1,14 +1,21 @@
-code = Day11.parse_state(File.read!("data/day17"))
-pid = Day15.start_program(code)
+code = Day17.parse_state(File.read!("data/day17"))
 
-state = Day17.read_state()
+program = Day17.process(code)
+
+IO.puts "program state #{program.state}"
+
+IO.puts to_string(program.output)
+
+state = Day17.to_map(program.output)
+
+#state = Day17.read_state()
 
 intersections = state
                 |> Map.keys()
                 |> Enum.filter(fn {x, y} ->
-                  (state |> Map.get({x, y}) == "#") &&
+                  (state |> Map.get({x, y}) == ?#) &&
                   Day17.neighbors({x, y})
-                  |> Stream.filter(fn p -> state |> Map.get(p) == "#" end)
+                  |> Stream.filter(fn p -> state |> Map.get(p) == ?# end)
                   |> Enum.count() >= 3
                 end)
 IO.puts "intersections: #{inspect intersections}"

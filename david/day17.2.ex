@@ -1,30 +1,20 @@
-code = Day11.parse_state(File.read!("data/day17"))
+code = Day17.parse_state(File.read!("data/day17"))
 
-pid = Day15.start_program(code |> Day11.update(0, 2))
+program = Day17.process(code |> Day11.update(0, 2))
 size = 1925
 
-main_routine = IO.gets("Main Routine? ")
-String.codepoints(main_routine) |> Enum.each(fn <<x>> ->
-  IO.puts(x)
-  send(pid, {:input, x}) end)
+IO.puts "program state #{program.state}"
 
-routine_a = IO.gets("Routine A? ")
-String.codepoints(routine_a) |> Enum.each(fn <<x>> -> 
-  IO.puts(x)
-  send(pid, {:input, x}) end)
-routine_b = IO.gets("Routine B? ")
-String.codepoints(routine_b) |> Enum.each(fn <<x>> -> IO.puts(x)
-  send(pid, {:input, x}) end)
-routine_c = IO.gets("Routine C? ")
-String.codepoints(routine_c) |> Enum.each(fn <<x>> -> IO.puts(x)
-  send(pid, {:input, x}) end)
+main = IO.gets("Main Routine? ")
+a = IO.gets("Routine A? ")
+b = IO.gets("Routine B? ")
+c = IO.gets("Routine C? ")
 
+all = main <> a <> b <> c
+IO.puts "all: #{inspect to_charlist(all)}"
+program = Day17.slow_input(program, to_charlist(all))
 
-<<y>> = "y"
-send(pid, {:input, y})
-
-Day17.read_state(%{}, {0, 0}, size)
-
+IO.puts("program state #{program.state}")
 
 
 
