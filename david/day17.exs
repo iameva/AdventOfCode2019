@@ -30,7 +30,7 @@ defmodule Day17 do
   def to_map([], _, map), do: map
   def to_map([char | tail], {x, y}, map) do
     case char do
-      10 -> to_map(tail, {0, y + 1}, map)
+      10 -> to_map(tail, {0, y - 1}, map)
       _ -> to_map(tail, {x + 1, y}, map |> Map.put({x, y}, char))
     end
   end
@@ -47,7 +47,7 @@ defmodule Day17 do
   end
 
 
-  def opcodes do %{ Day11.opcodes |
+  def opcodes(useIO \\ false) do %{ Day11.opcodes |
     3 => fn (state) ->
       case state.input do
         [head | rest] ->
@@ -56,16 +56,28 @@ defmodule Day17 do
           |> Map.put(:input, rest)
           |> Day11.step_pos(2)
         [] ->
-          input = IO.gets(to_string(state.output))
-          state |> Map.put(:input, to_charlist(input))
-          |> Map.put(:output, [])
+          if useIO do
+            input = IO.gets(to_string(state.output))
+            state
+            |> Map.put(:input, to_charlist(input))
+            |> Map.put(:output, [])
+          else
+            state
+            |> Map.put(:state, :need_input)
+          end
       end
     end,
     4 => fn (state) ->
       output = state |> Day11.get_parameter(1)
-      IO.write(<<output>>)
-      state #|> Map.put(:output, state.output ++ [output])
-      |> Day11.step_pos(2)
+      if useIO do
+        IO.write(<<output>>)
+        state
+        |> Day11.step_pos(2)
+      else
+        state
+        |> Map.put(:output, state.output ++ [output])
+        |> Day11.step_pos(2)
+      end
     end,
     99 => fn (state) ->
       state
@@ -73,10 +85,10 @@ defmodule Day17 do
     end}
   end
 
-  def process(state) do
+  def process(state, opcodes) do
     case state.state do
       :unstarted ->
-        process(state |> Map.put(:state, :running))
+        process(state |> Map.put(:state, :running), opcodes)
       :need_input ->
         state
       :halted ->
@@ -84,11 +96,11 @@ defmodule Day17 do
       :running ->
         baseOp = state |> Day11.current()
         op = baseOp |> rem(100)
-        case opcodes()[op] do
+        case opcodes[op] do
           nil ->
             state |> Map.put(:state, :bad_op)
           code ->
-            process(code.(state))
+            process(code.(state), opcodes)
         end
     end
   end
@@ -96,7 +108,7 @@ defmodule Day17 do
   def slow_input(state, []), do: state
   def slow_input(state, [head| rest]) do
     IO.puts("sending #{inspect <<head>>}")
-    next = process(state |> Map.put(:input, state.input ++ [head]) |> Map.put(:state, :running))
+    next = process(state |> Map.put(:input, state.input ++ [head]) |> Map.put(:state, :running), opcodes())
     case next.state do
       :need_input ->
         slow_input(next, rest)
@@ -108,6 +120,37 @@ defmodule Day17 do
   end
 
   def send_input(state, input) do
-    process(state |> Map.put(:input, state.input ++ input) |> Map.put(:state, :running))
+    process(state |> Map.put(:input, state.input ++ input) |> Map.put(:state, :running), opcodes())
+  end
+
+
+  def create_path(map, pos, dir, path, num) do
+    next_pos = Vec.add(pos, Day15.dir_to_vec(dir))
+    case map |> Map.get(next_pos, ?.) do
+      ?. ->
+        # we've reached the end of a path. we must turn
+        left = Day15.turn_left(dir)
+        left_pos = Vec.add(pos, Day15.dir_to_vec(left))
+        case map |> Map.get(left_pos, ?.) do
+          ?. ->
+            #can't go left, lets try right
+            right = Day15.turn_right(dir)
+            right_pos = Vec.add(pos, Day15.dir_to_vec(right))
+            case map |> Map.get(right_pos, ?.) do
+              ?. ->
+                # can't turn left, we must be done
+                path ++ [num]
+              _ ->
+                # turn right
+                create_path(map, right_pos, right, path ++ [num, :R], 1)
+            end
+          _ ->
+            # turn left
+            create_path(map, left_pos, left, path ++ [num, :L], 1)
+        end
+      _ ->
+        # still on valid path, continue
+      create_path(map, next_pos, dir, path, num + 1)
+    end
   end
 end

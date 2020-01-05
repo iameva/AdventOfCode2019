@@ -1,6 +1,6 @@
 code = Day17.parse_state(File.read!("data/day17"))
 
-program = Day17.process(code)
+program = Day17.process(code, Day17.opcodes(false))
 
 IO.puts "program state #{program.state}"
 
