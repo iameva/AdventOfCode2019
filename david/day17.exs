@@ -15,7 +15,7 @@ defmodule Day17 do
     end)
     |> Enum.reduce("\n", fn {x, y}, str ->
       char = case map |> Map.get({x, y}) do
-          nil -> " "
+          nil -> ? 
           x -> x
         end
       if x == minX do
