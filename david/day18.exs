@@ -1,13 +1,4 @@
 defmodule Graph do
-  def bfs(_, _, []), do: nil
-  def bfs(success, neighbors, [state | rest]) do
-    if success.(state) do
-      state
-    else
-      bfs(success, neighbors, Enum.concat([rest, neighbors.(state)]))
-    end
-  end
-
   def dijkstras([], _, _, _), do: nil
   def dijkstras([{cost, state} | rest], visited, success, neighbors) do
     IO.write "\r#{cost}"
@@ -129,7 +120,6 @@ defmodule Day18 do
                          |> Map.keys()
                          |> Stream.filter(&(is_interesting(state, &1)))
                          |> Enum.to_list
-    state = state |> Map.put(:interesting, interesting_points |> MapSet.new())
     # each interesting point is a node in our graph
     interesting_points
     |> Stream.map(fn p -> {p, {Map.get(state.map, p), find_neighbors(state, p)}} end)
@@ -153,38 +143,5 @@ defmodule Day18 do
     |> Enum.filter(fn p ->
       (state.map |> Map.get(p, ?#)) != ?#
     end)
-  end
-
-  def find_available_keys(state) do
-    find_available_keys(state, MapSet.new(), [state.pos], MapSet.new())
-  end
-
-  def find_available_keys(state, visited, positions, keys) do
-    state.map
-    |> Map.merge(
-      visited 
-      |> Stream.map(fn p -> {p, ?o} end)
-      |> Map.new)
-      |> Day17.print_map
-    case positions do
-      [] -> keys
-      positions ->
-        new_visited = 
-          positions
-          |> MapSet.new
-          |> MapSet.union(visited)
-        new_keys =
-          positions
-          |> Stream.map(fn p -> {p, state.map |> Map.get(p)} end)
-          |> Stream.filter(fn {_, c} -> is_key(c) end)
-          |> MapSet.new()
-          |> MapSet.union(keys)
-        new_positions =
-          positions
-          |> Stream.flat_map(fn x -> neighbors(state, x) end)
-          |> Stream.filter(fn x -> !( new_visited |> MapSet.member?(x)) end)
-          |> Enum.to_list
-        find_available_keys(state, new_visited, new_positions, new_keys)
-    end
   end
 end
