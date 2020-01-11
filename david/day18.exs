@@ -1,4 +1,5 @@
 defmodule Graph do
+  def dijkstras(x, success, neighbors), do: dijkstras(:gb_sets.from_list([{0, x}]), %{}, success, neighbors)
   def dijkstras({0, nil}, _, _, _), do: nil
   def dijkstras(set, visited, success, neighbors) do
     {{cost, state}, rest} = :gb_sets.take_smallest(set)

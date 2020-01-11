@@ -22,8 +22,7 @@ num_keys =
   |> Enum.count
 
 result = Graph.dijkstras(
-  :gb_sets.from_list([{0, {starting_positions, MapSet.new, graph}}]),
-  Map.new,
+  {starting_positions, MapSet.new, graph},
   fn {_, keys, _} ->
     (keys |> Enum.count) == num_keys
   end,
