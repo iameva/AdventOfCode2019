@@ -57,4 +57,52 @@ defmodule Day23 do
         IO.inspect other
     end
   end
+
+  def route_packets_2(queues \\ %{}) do
+    receive do
+      {:get_input, id, pid} ->
+        case queues[id] do
+          [message | rest] ->
+            send(pid, {:in, message})
+            route_packets_2(queues |> Map.put(id, rest) |> Map.put(:idle, queues.idle |> MapSet.delete(id)))
+          _ ->
+            send(pid, {:in, -1})
+            {queues, result} = if queues[255] != nil && (0..49 |> Enum.all?(&(queues[&1] == []))) && (queues.idle |> Enum.count == 50) do
+              [_, y] = queues[255]
+              result = if y == queues[:old_y] do
+                y
+              else
+                nil
+              end
+              {queues |> Map.put(0, queues[255]) |> Map.put(:old_y, y) |> Map.put(:idle, MapSet.new()),
+                result}
+            else
+              {queues, nil}
+            end
+            if result != nil do
+              result
+            else
+              route_packets_2(queues |> Map.put(:idle, queues.idle |> MapSet.put(id)))
+            end
+        end
+      {:output, id, 255} ->
+        receive do
+          {:output, ^id, x} ->
+            receive do
+              {:output, ^id, y} ->
+                route_packets_2(queues |> Map.put(255, [x, y]))
+            end
+        end
+      {:output, id, out_id} ->
+        receive do
+          {:output, ^id, x} ->
+            receive do
+              {:output, ^id, y} ->
+                route_packets_2(queues |> Map.put(out_id, queues[out_id] ++ [x, y]) |> Map.put(:idle, queues.idle |> MapSet.delete(id) |> Map.delete(out_id)))
+            end
+        end
+      other ->
+        IO.inspect other
+    end
+  end
 end
