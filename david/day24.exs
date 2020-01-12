@@ -70,3 +70,79 @@ defmodule Day24 do
     end
   end
 end
+
+defmodule Day24p2 do
+  def parse(input) do
+    input
+    |> String.split("\n")
+    |> Stream.filter(&(&1 != ""))
+    |> Stream.with_index
+    |> Stream.flat_map(fn {line, y} ->
+      line
+      |> String.to_charlist
+      |> Stream.with_index
+      |> Stream.flat_map(fn {c, x} ->
+        case c do
+          ?# ->
+            [{0, x, y}]
+          _ ->
+            []
+        end
+      end)
+    end)
+    |> MapSet.new
+  end
+
+  def candidates(state) do
+    state
+    |> Stream.flat_map(fn p ->
+      neighbors(p)
+    end)
+    |> MapSet.new()
+  end
+
+  def neighbors({level, x, y}) do
+    Day18.neighbors({x, y})
+    |> Stream.flat_map(fn {nx, ny} ->
+      cond do
+        {nx, ny} == {2, 2} ->
+          case {x, y} do
+            {2, _} ->
+              newY = if y == 1, do: 0, else: 4
+              0..4
+              |> Stream.map(fn newX -> {level - 1, newX, newY} end)
+            {_, 2} ->
+              newX = if x == 1, do: 0, else: 4
+              0..4
+              |> Stream.map(fn newY -> {level - 1, newX, newY} end)
+          end
+        nx == -1 ->
+          [{level + 1, 1, 2}]
+        nx == 5 ->
+          [{level + 1, 3, 2}]
+        ny == -1 ->
+          [{level + 1, 2, 1}]
+        ny == 5 ->
+          [{level + 1, 2, 3}]
+        true ->
+          [{level, nx, ny}]
+      end
+    end)
+  end
+
+  def step(state) do
+    candidates(state)
+    |> Stream.filter(fn p ->
+      n = neighbors(p)
+          |> Stream.filter(&(MapSet.member?(state, &1)))
+          |> Enum.count
+      if MapSet.member?(state, p) do
+        n == 1
+      else
+        n == 1 || n == 2
+      end
+    end)
+    |> MapSet.new
+  end
+end
+
