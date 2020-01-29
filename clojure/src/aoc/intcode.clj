@@ -16,7 +16,9 @@
 (defn eval-write-to-arg [state arg]
   (if (= (:mode arg) 0)
     (:arg arg)
-    (+ (:arg arg ) (state :rel-offset))))
+    (do
+      (println "Writing to:"  (+ (:arg arg ) (state :rel-offset)))
+      (+ (:arg arg ) (state :rel-offset)))))
 
 (def instruction-template
   { ;; opcode adden adder dest
@@ -136,10 +138,12 @@
       (let [instr (decode-instruction state instructions)
             args  (decode-args state instr)]
 ;;        (println "Instr: " (:name instr))
+;;        (println "Args: " args)
+        (println "rel-offset: " (:rel-offset state))
         (recur ((:func instr) state args))))))
 
 (defn init-state [in out program]
-  {:ram (into [] (concat program (repeat 1024 0)))
+  {:ram (into [] (concat program (repeat 4096 0)))
     :pgm-ctr 0
     :rel-offset 0
     :in in

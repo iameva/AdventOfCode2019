@@ -8,6 +8,11 @@
 (defn manhattan-2d [p1 p2]
   (+ (Math/abs (- (p1 :x) (p2 :x))) (Math/abs (- (p1 :y) (p2 :y)))))
 
+(defn euclid-distance [p1 p2]
+  (let [x-diff (- (p1 :x) (p2 :x))
+        y-diff (- (p1 :y) (p2 :y))]
+    (Math/sqrt (+ (* x-diff x-diff) (* y-diff y-diff)))))
+
 (def sort-vec (comp (partial into []) sort))
 
 (defn input-as-string [filename]
@@ -22,8 +27,13 @@
 (defn make-point [x y]
   {:x x :y y})
 
-
 (defn drain-channel [c]
   (do
     (close! c)
     (take-while some? (repeatedly #(<!! c)))))
+
+(defn advance-cursor[cursor vector]
+  {
+   :x (+ (:x cursor) (:x vector))
+   :y (+ (:y cursor) (:y vector))
+   })
