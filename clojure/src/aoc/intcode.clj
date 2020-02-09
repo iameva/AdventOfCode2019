@@ -139,7 +139,7 @@
             args  (decode-args state instr)]
 ;;        (println "Instr: " (:name instr))
 ;;        (println "Args: " args)
-        (println "rel-offset: " (:rel-offset state))
+;;        (println "rel-offset: " (:rel-offset state))
         (recur ((:func instr) state args))))))
 
 (defn init-state [in out program]
