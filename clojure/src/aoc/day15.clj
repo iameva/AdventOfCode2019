@@ -56,11 +56,10 @@
       (cond
         (= tile 1) (explore-dfs m in out direction)
         (= tile 0) (update m :walls conj location)
-        (= tile 2) (do
-                     (query-for-tile in out (reverse-directions came-from-direction)) ;;move back, since we don't recurse from the o2 tank
-                     (-> m
-                         (assoc :o2 location)
-                         (update :paths conj location))))))
+        (= tile 2) (-> m
+                       (assoc :o2 location)
+                       (update :paths conj location)
+                       (explore-dfs in out direction)))))
   "The caller enters this funciton with the droid already advanced in the int-code computer,
    but the maze out of date.
    1) Update maze's cursor to the current position, add cursor to paths
@@ -113,3 +112,26 @@
         (find-shortest-path {:x 0 :y 0} (maze :o2))
         count)))
 
+(defn build-levels [maze]
+  (loop [visited {(maze :o2) 0}
+         q (conj clojure.lang.PersistentQueue/EMPTY {:loc (maze :o2) :lvl 0})]
+    (if (seq q)
+      (let [head (peek q)
+            children (next-to-visit (maze :paths) visited (head :loc))
+            next-lvl (inc (head :lvl))
+            _ (println head)]
+;;        (println "head:" head)
+        (recur (if (seq children)
+                 (apply assoc visited (interleave children (repeat next-lvl)))
+                 visited)
+               (into (pop q) (map (fn [c] {:loc c :lvl  next-lvl}) children))))
+      visited)))
+
+(defn part-two []
+  (let [in (chan)
+        out (chan)
+        droider ((ic/make-int-computer in out) (ic/read-program "day15.txt"))
+        maze (explore-dfs default-maze in out 0)]
+    (->> maze
+         build-levels
+         (group-by second))))
