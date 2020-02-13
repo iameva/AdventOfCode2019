@@ -17,7 +17,7 @@
   (if (= (:mode arg) 0)
     (:arg arg)
     (do
-      (println "Writing to:"  (+ (:arg arg ) (state :rel-offset)))
+;;      (println "Writing to:"  (+ (:arg arg ) (state :rel-offset)))
       (+ (:arg arg ) (state :rel-offset)))))
 
 (def instruction-template

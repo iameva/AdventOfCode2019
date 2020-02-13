@@ -1,6 +1,7 @@
 (ns aoc.util
   (:require
    [clojure.java.io :as io]
+   [clojure.string :as cljstr]
    [clojure.core.async :as async :refer [close! <!!]]))
 
 ;; Takes a map of {x -> number y-:> number}
@@ -16,7 +17,7 @@
 (def sort-vec (comp (partial into []) sort))
 
 (defn input-as-string [filename]
-  (-> filename io/resource slurp))
+  (cljstr/trim (-> filename io/resource slurp)))
 
 (defn char-to-int [character]
   (- (int character) (int \0)))
