@@ -63,3 +63,19 @@
 (defn part-two []
   (let [program (assoc (ic/read-program "day17.txt") 0 2)]
     (ascii/run-ascii program)))
+
+
+(defn part-two-ish []
+  (let [in (chan 256)
+        out (chan 256)
+        ascii-comp (ic/make-int-computer in out)
+        printer (print-output out)
+        handle (ascii-comp (assoc (ic/read-program "day17.txt") 0 2))]
+    (do
+      (async/onto-chan in (map int "A,B,A,C,B,C,A,C,B,C\n") false)
+      (async/onto-chan in (map int "L8,R10,L10\n") false)
+      (async/onto-chan in (map int "R10,L8,L8,L10\n") false)
+      (async/onto-chan in (map int "L4,L6,L8,L8\n") false)
+;;    (>!! in (int \n))
+;;    (>!! in (int \newline))
+      (<!! handle))))

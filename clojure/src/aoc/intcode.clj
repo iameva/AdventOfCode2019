@@ -42,11 +42,14 @@
       :size  4}
    3 {:name  "input"
       :func  (fn [state args]
-               (-> state
-                   (update :ram (fn [ram args]
-                                  (assoc ram (eval-write-to-arg state (args 0)) (<!! (:in state))))
-                           args)
-                   (update :pgm-ctr + 2)))
+               (let [val (<!! (:in state))]
+                 (do
+;;                   (println "read:" val)
+                   (-> state
+                       (update :ram (fn [ram args]
+                                      (assoc ram (eval-write-to-arg state (args 0)) val))
+                               args)
+                       (update :pgm-ctr + 2)))))
       :size  2}
    4 {:name  "output"
       :func  (fn[state args]
@@ -137,13 +140,13 @@
       state
       (let [instr (decode-instruction state instructions)
             args  (decode-args state instr)]
-;;        (println "Instr: " (:name instr))
-;;        (println "Args: " args)
+;;        (println "Instr:" (:name instr))
+;;        (println "Args :" args)
 ;;        (println "rel-offset: " (:rel-offset state))
         (recur ((:func instr) state args))))))
 
 (defn init-state [in out program]
-  {:ram (into [] (concat program (repeat 4096 0)))
+  {:ram (into [] (concat program (repeat 8192 0)))
     :pgm-ctr 0
     :rel-offset 0
     :in in

@@ -8,7 +8,7 @@ maven-classpath
 maven-classpath.properties
 .idea/
 *.nrepl-port
-
+clojure/.lein-repl-history
 # emacs
 *~
 \#*\#

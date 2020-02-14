@@ -3,19 +3,27 @@
    [aoc.intcode :as ic]
    [clojure.core.async :as async :refer [>!! <!! go-loop chan]]))
 
+(defn decode-rune [rune]
+  (if (<= rune 127) ;; if in ascii range
+    (char rune)
+    rune))
+
 (defn printer [out]
   (go-loop [rune (<!! out)]
     (if (nil? rune)
       nil
       (do
-        (print (char rune))
+        (print (decode-rune rune))
         (flush)
         (recur (<!! out))))))
 
 (defn reader [in]
   (go-loop [line (read-line)]
-    (map (comp (partial <!! in) int) (concat line "\n"))
-    (recur (read-line))))
+    (if (= line "q")
+      nil
+      (let [encoded (map int (concat line "\n"))]
+        (async/onto-chan in encoded false)
+        (recur (read-line))))))
 
 (defn run-ascii [program]
   (let [in  (chan 256)
